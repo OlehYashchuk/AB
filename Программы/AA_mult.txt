@@ -1,0 +1,96 @@
+# Ìíîæåñòâåííàÿ ïðîâåðêà ãèïîòåç
+# Êðèòåðèé Õè2
+
+rm(list = ls())
+
+options("max.print" = 50)
+getOption
+
+library(pwr)
+library(tictoc)
+# install.packages(c("pwr", "tictoc"))
+########## Ïàðàìåòðû ìîäåëèðîâàíèÿ
+# êîëè÷åñòâî ïîòîêîâ íà ñàéò
+# óðîâåíü çíà÷èìîñòè
+alpha <- 0.05
+beta <- 0.2
+# êâàíòèëü N(0,1) äëÿ óðîâíÿ çíà÷èìîñòè alpha
+quant <- qnorm(1 - alpha / 2)
+# âåðîÿòíîñòè êëèêà ïî êíîïêå
+pksi <- 0.1 # pcont
+peta <- 0.1 # pexp
+# íåîáõîäèìûé îáú¸ì âûáîðêè â êàæäîé ãðóïïå
+pwr <- power.prop.test(p1 = pksi, p2 = ifelse(peta-pksi!=0, peta, pksi+0.02), 
+                       sig.level = alpha,
+                       power = 1 - beta,
+                       alternative = c("two.sided"),
+                       strict = FALSE)
+n <- pwr$n
+
+
+########## Ìîäåëèðîâàíèå ïîòîêà ïîëüçîâàòåëåé
+usersFlow <- function(K = k, N = n, pA = pksi, pB = peta, ...) {
+        flow <- list()
+        for (i in 1 : K) {
+                flow[i] <- as.list(flow[i])
+                flow[[i]] <- as.list(flow[[i]])
+        }
+        while (min(unlist(lapply(flow, length))) < N) {
+                who <- sample(c(1 : k), 1, replace = T, prob = rep(1/K, K))
+                flow[[who]][[length(flow[[who]])+1]] <- sample(c(0, 1), 1, 
+                                                                replace = T, 
+                                                prob = c(1 - pksi, pksi))
+        }
+        return(list("flow" = flow))
+}
+# b <- usersFlow()
+
+
+
+
+# attach(b)
+# detach(b)
+########## Êðèòåðèé Õè2 äëÿ ïðîïîðöèé
+chiTest <- function(ksi, eta) {
+        # ð-pool
+        pPool <- (sum(ksi) + sum(eta)) / (length(ksi) + length(eta))
+        # ×èñëèòåëü ñòàòèñòèêè
+        chiSNumerator <- sum(ksi) / length(ksi) - sum(eta) / length(eta)
+        # Çíàìåíàòåëü ñòàòèñòèêè
+        chiSDenominator <- sqrt(pPool * (1-pPool) * 
+                                        (1/length(ksi)+1/length(eta))+0.1^100)
+        # Ñòàòèñòèêà êðèòåðèÿ
+        se <- chiSNumerator / chiSDenominator
+        # p-value äëÿ ñòàòèñòèêè Õè2 ïðè äâóñòîðîííåé àëüòåðíàòèâå
+        pVal <- 2 * min(pnorm(se, lower.tail = TRUE), 
+                        pnorm(se, lower.tail = FALSE))
+        # âåðõíÿÿ ãðàíèöà äîâåðèòåëüíîãî èíòåðâàëà(ïðè âåðíîé íóëåâîé ãèïîòåçå)
+        upperConf <- quant * chiSDenominator
+        
+        return(list("pVal" = pVal, "upperConf" = upperConf))
+}
+
+tic()
+k <- 20
+tests <- list()
+pb <- txtProgressBar(min = 1, max = k, style = 3)
+for (i in 1 : k) {
+        modelFlow <- usersFlow()
+        tests[i] <- list(chiTest(ksi = unlist(modelFlow$flow[[1]]), 
+                                 eta = unlist(modelFlow$flow[[i]])))
+        setTxtProgressBar(pb, i)
+}
+pVal <- lapply(tests, function(x) {unlist(x[1])})
+falsePositive <- length(which(unlist(rbind(pVal)) < alpha))
+plot(sort(unlist(rbind(pVal))), type = 'p')
+abline(h = alpha)
+falsePositive / k #fpRate
+close(pb)
+toc()
+
+# pValList <- do.call(rbind, lapply(pValList, data.frame,stringsAsFactors=FALSE))
+pValList <- unlist(pValList)
+summary(pValList)
+plot(sort(pValList), type = 'l')
+abline(h = alpha)
+length(which(pValList <= alpha)) / k
