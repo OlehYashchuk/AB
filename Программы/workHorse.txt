@@ -1,0 +1,30 @@
+workHorse <- function(K = k, N = n, ...) {
+        # Время работы функии
+        tic()
+        # pb <- txtProgressBar(min = 0, max = K, style = 3)
+        
+        tests <- list()
+        modelFlow <- usersFlow(K, N, pA = pksi, pB = peta)
+        # modelFlow <- usersFlow(K, N)
+        # modelFlow <- usersFlow()
+        
+        for (i in 1 : K) {
+                tests[i] <- list(chiTest(ksi = unlist(modelFlow$flow[[1]]), 
+                                         eta = unlist(modelFlow$flow[[i]])))
+                # setTxtProgressBar(pb, i)
+        }
+        
+        pVal <- lapply(tests, function(x) {unlist(x[1])})
+        falsePositive <- length(which(unlist(rbind(pVal)) < alpha))
+        fPRate <- falsePositive / K
+        
+        plot(sort(unlist(rbind(pVal))), type = 'p', ylim = c(0,1))
+        abline(h = alpha, col = 'red')
+        
+        # flowLength <- lapply(modelFlow, function(x) length(x[[1]]))
+        # close(pb)
+        toc()
+        
+        #return(list("pVal" = pVal, "FPR" = fPRate, "flowLength" = flowLength))
+        return(list("pVal" = pVal, "FPR" = fPRate))
+}

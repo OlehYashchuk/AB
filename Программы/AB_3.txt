@@ -1,0 +1,142 @@
+# Множественная проверка гипотез
+# Критерий Хи2
+
+rm(list = ls())
+
+source("corr.R")
+source("complete.R")
+source("pollutantmean.R")
+
+options("max.print" = 50)
+getOption
+
+library(pwr)
+library(tictoc)
+# update.packages("tictoc")
+
+########## Параметры моделирования
+# количество потоков на сайт
+# k <- 3
+# уровень значимости
+alpha <- 0.05
+beta <- 0.2
+# квантиль N(0,1) для уровня значимости alpha
+quant <- qnorm(1 - alpha / 2)
+# вероятности клика по кнопке
+pksi <- 0.1 # pcont
+peta <- 0.1 # pexp
+# необходимый объём выборки в каждой группе
+pwr <- power.prop.test(p1 = pksi, p2 = ifelse(peta-pksi!=0, peta, pksi+0.02), 
+                       sig.level = alpha,
+                       power = 1 - beta,
+                       alternative = c("two.sided"),
+                       strict = FALSE)
+n <- pwr$n
+
+########## Моделирование потока пользователей
+usersFlow <- function(K = k, N = n, pA = pksi, pB = peta, ...) {
+        
+        pb <- txtProgressBar(min = 0, max = N, style = 3)
+        # Массив массивов
+        flow <- list()
+        for (i in 1 : K) {
+                flow[i] <- as.list(flow[i])
+                flow[[i]] <- as.list(flow[[i]])
+        }
+        
+        # Моделируем посетителей до достижения необходимого колличества "n"
+        # в каждой группе
+        while (min(unlist(lapply(flow, length))) < N) {
+                # Разделение потока на А и В
+                # Если whos = 1, пользователь попадает в группу ksi
+                # Если whos = 2, пользователь попадает в группу eta
+                who <- sample(c(1 : K), 1, replace = T, prob = rep(1/K, K))
+                # Отправляем пользователя в группу номер who 
+                # и генерируем его поведение
+                flow[[who]][[length(flow[[who]])+1]] <- sample(c(0, 1), 1, 
+                                                                replace = T, 
+                                                prob = c(1 - pksi, pksi))
+                setTxtProgressBar(pb, min(unlist(lapply(flow, length))))
+        }
+        close(pb)
+        return(list("flow" = flow))
+}
+
+########## Критерий Хи2 для пропорций
+chiTest <- function(ksi, eta) {
+        # р-pool
+        pPool <- (sum(ksi) + sum(eta)) / (length(ksi) + length(eta))
+        # Числитель статистики
+        chiSNumerator <- sum(ksi) / length(ksi) - sum(eta) / length(eta)
+        # Знаменатель статистики
+        chiSDenominator <- sqrt(pPool * (1-pPool) * 
+                                        (1/length(ksi)+1/length(eta))+0.1^100)
+        # Статистика критерия
+        se <- chiSNumerator / chiSDenominator
+        # p-value для статистики Хи2 при двусторонней альтернативе
+        pVal <- 2 * min(pnorm(se, lower.tail = TRUE), 
+                        pnorm(se, lower.tail = FALSE))
+        # верхняя граница доверительного интервала(при верной нулевой гипотезе)
+        upperConf <- quant * chiSDenominator
+        
+        return(list("pVal" = pVal, "upperConf" = upperConf))
+}
+
+workHorse <- function(K = k, N = n, ...) {
+        # Время работы функии
+        tic()
+        # pb <- txtProgressBar(min = 0, max = K, style = 3)
+        
+        tests <- list()
+        modelFlow <- usersFlow(K, N, pA = pksi, pB = peta)
+        # modelFlow <- usersFlow(K, N)
+        # modelFlow <- usersFlow()
+        
+        for (i in 1 : K) {
+                tests[i] <- list(chiTest(ksi = unlist(modelFlow$flow[[1]]), 
+                                         eta = unlist(modelFlow$flow[[i]])))
+                # setTxtProgressBar(pb, i)
+        }
+        
+        pVal <- lapply(tests, function(x) {unlist(x[1])})
+        falsePositive <- length(which(unlist(rbind(pVal)) < alpha))
+        fPRate <- falsePositive / K
+        
+        plot(sort(unlist(rbind(pVal))), type = 'p', ylim = c(0,1))
+        abline(h = alpha, col = 'red')
+        
+        # flowLength <- lapply(modelFlow, function(x) length(x[[1]]))
+        # close(pb)
+        toc()
+        
+        #return(list("pVal" = pVal, "FPR" = fPRate, "flowLength" = flowLength))
+        return(list("pVal" = pVal, "FPR" = fPRate))
+}
+
+a <- list()
+a <- workHorse(20, n, pksi, peta)
+a$FPR
+
+
+
+
+
+
+
+# tic()
+# k <- 3
+# tests <- list()
+# pb <- txtProgressBar(min = 0, max = k, style = 3)
+# for (i in 1 : k) {
+#         modelFlow <- usersFlow()
+#         tests[i] <- list(chiTest(ksi = unlist(modelFlow$flow[[1]]), 
+#                                  eta = unlist(modelFlow$flow[[i]])))
+#         setTxtProgressBar(pb, i)
+# }
+# pVal <- lapply(tests, function(x) {unlist(x[1])})
+# falsePositive <- length(which(unlist(rbind(pVal)) < alpha))
+# plot(sort(unlist(rbind(pVal))), type = 'p')
+# abline(h = alpha, col = 'red')
+# falsePositive / k #fpRate
+# close(pb)
+# toc()
