@@ -1,0 +1,400 @@
+cats <- read.csv("c:/Users/dsolegya/Downloads/cats_sample.csv")
+
+str(cats)
+summary(cats)
+
+library(ggplot2)
+
+ggplot(cats, aes(x = Sex, y = Bwt, fill = Sex)) + geom_boxplot()
+        # + scale_y_discrete(breaks = seq(0, 5, 0.2)) 
+
+# 1
+tapply(cats$Bwt, cats$Sex, median)
+
+# 2 E(X^2)-E(X)^2
+tapply(cats$Bwt, cats$Sex, var)
+
+kitti <- subset(cats, Sex == 'F')
+round(mean(kitti$Bwt^2)-mean(kitti$Bwt)^2, 3)
+
+# 3
+quantile(kitti$Bwt, probs = c(0.25, 0.5, 0.75))
+summary(kitti)
+
+# 4
+IQR <- quantile(kitti$Bwt, probs = c(0.75)) - quantile(kitti$Bwt, probs = c(0.25))
+
+# 5
+2.5 - quantile(kitti$Bwt, probs = c(0.25, 0.75)) > 1.5*IQR
+
+# 6, 7 mean, sd
+n <- sqrt(tapply(cats$Bwt, cats$Sex, length)-1)/sqrt(tapply(cats$Bwt, cats$Sex, length))
+round(tapply(cats$Bwt, cats$Sex, mean), 2)
+round(tapply(cats$Bwt, cats$Sex, sd)*n, 2)
+
+# 8
+t.test(cats$Bwt[cats$Sex=="F"], cats$Bwt[cats$Sex=="M"], alternative = 'greater')
+t.test(cats$Bwt[cats$Sex=="F"], mu = 3.11, alternative = 'greater')
+
+# 9
+# round(round(tapply(cats$Bwt, cats$Sex, sd)[1]*n, 2) - 2.5, 1)
+(2.5 - round(tapply(cats$Bwt, cats$Sex, mean)[1], 2))/
+round(tapply(cats$Bwt, cats$Sex, sd)[1]*n, 2)
+
+
+round(tapply(cats$Bwt, cats$Sex, mean), 2)
+
+
+
+
+
+
+
+
+
+
+
+
+# Lab work
+flats <- read.csv("c:/Users/dsolegya/Downloads/flats.csv", 
+                  stringsAsFactors = FALSE, encoding="UTF-8", sep = ",")
+summary(flats)
+str(flats)
+
+# 1, 2
+str(flats)
+unique(flats$Місто)
+
+# 3
+dim(subset(flats, flats$Місто == "Одеса" & flats$Кімнат == 3))
+
+# 4
+median(subset(flats, flats$Місто == "Львів" & flats$Кімнат == 1)$Загальна_площа)
+
+
+
+
+
+
+# Week 3
+
+library(ggplot2)
+library(dplyr)
+
+movie_body_counts <- read.csv("c:/Users/dsolegya/Downloads/filmdeathcounts.csv")
+
+str(movie_body_counts)
+summary(movie_body_counts)
+
+head(movie_body_counts)
+
+movie_body_counts$body_per_min <- movie_body_counts$Body_Count /
+        movie_body_counts$Length_Minutes
+
+ggplot(movie_body_counts, aes(x=Body_Count)) +
+        geom_histogram(bins=20, color="grey", fill="lightblue")
+
+movie_body_counts %>%
+        top_n(n = 10, Body_Count) %>%
+        arrange(desc(Body_Count))
+
+movie_body_counts %>%
+        top_n(n = 10, body_per_min) %>%
+        arrange(desc(body_per_min))
+
+ggplot(movie_body_counts, aes(x=IMDB_Rating)) +
+        geom_histogram(bins=10, color="grey", fill="lightblue") 
+
+imdb_mean <- mean(movie_body_counts$IMDB_Rating)
+imdb_sd <- sd(movie_body_counts$IMDB_Rating)
+
+set.seed(900)
+imdb_simulation <- rnorm(n=nrow(movie_body_counts), 
+                         mean = imdb_mean, sd = imdb_sd)
+
+movie_body_counts$imdb_simulation <- imdb_simulation
+
+ggplot(movie_body_counts, aes(x=imdb_simulation)) +
+        geom_histogram(bins=10, color="grey", fill="lightblue")
+
+ggplot(movie_body_counts, aes(sample = imdb_simulation)) + stat_qq()
+
+ggplot(movie_body_counts, aes(sample = IMDB_Rating)) + stat_qq()
+
+# 1
+shapiro.test(movie_body_counts$IMDB_Rating)
+library(nortest)
+pearson.test(movie_body_counts$IMDB_Rating, adjust = FALSE)
+# qqplot(y = movie_body_counts$IMDB_Rating, x = 1:length(movie_body_counts$IMDB_Rating))
+
+# 2
+movie_body_counts$imdb_simulation
+set.seed(900)
+pnorm(4, mean = imdb_mean, sd = imdb_sd)*100
+
+# 3
+set.seed(900)
+pnorm(8, mean = imdb_mean, sd = imdb_sd) - pnorm(4, mean = imdb_mean, sd = imdb_sd)
+
+# 4
+cor(movie_body_counts$Body_Count, movie_body_counts$IMDB_Rating)
+
+# 5
+model <- lm(Body_Count ~ IMDB_Rating, data = movie_body_counts)
+summary(model)
+
+
+
+# Week 4
+
+# 5
+mu <- 268
+sd <- 15
+n <- 36
+s <- sd/sqrt(n)
+xEmp <- 263
+z <- (xEmp-mu)/s
+pnorm(z)*100
+
+# 7
+# pnorm(0.99, mean = 0, sd = 1)
+qnorm(0.99)
+sd <- 81
+mu <- 375
+n <- 30
+s <- sd / sqrt(n)
+alpha <- 0.99
+qnorm((1-alpha)/2, lower.tail = F)*s
+
+# 8
+t <- qt((1-alpha)/2, df = n-1, lower.tail = F)
+t*s
+
+# 10
+qnorm(0.025)
+
+
+
+# Lab
+anscombe
+str(anscombe)
+summary(anscombe)
+
+library(lattice)
+library(ggplot2)
+# xyplot(x1 ~ y1 | y2, data = anscombe)
+
+cor(anscombe$y1, anscombe$x1)
+cor(anscombe$x1, anscombe$y1)
+cor(anscombe$x2, anscombe$y2)
+cor(anscombe$x3, anscombe$y3)
+
+# Нагадую, що умовами для побудови валідної моделі є:
+# • Лінійність
+# • Нормальний розподіл залишків
+# • Гомоскедастичність (стала варіативність залишків)
+
+lm1 <- lm(anscombe$y1 ~ anscombe$x1)
+lm2 <- lm(anscombe$y2 ~ anscombe$x2)
+lm3 <- lm(anscombe$y3 ~ anscombe$x3)
+lm4 <- lm(anscombe$y4 ~ anscombe$x4)
+summary(lm1)
+lm1$fitted.values
+anscombe$y1 - lm1$fitted.values == lm1$residuals
+
+anscombe$residuals_lm1 <- lm1$residuals
+ggplot(anscombe, aes(x = residuals_lm1)) + geom_dotplot(fill="orange")
+
+anscombe$residuals_lm2 <- lm2$residuals
+ggplot(anscombe, aes(x = residuals_lm2)) + geom_dotplot(fill="orange")
+
+anscombe$residuals_lm3 <- lm3$residuals
+ggplot(anscombe, aes(x = residuals_lm3)) + geom_dotplot(fill="orange")
+
+anscombe$residuals_lm4 <- lm4$residuals
+ggplot(anscombe, aes(x = residuals_lm4)) + geom_dotplot(fill="orange")
+
+qqnorm(lm1$residuals, col="orange", pch=20)
+qqline(lm1$residuals, col = "blue")
+
+qqnorm(lm2$residuals, col="orange", pch=20)
+qqline(lm2$residuals, col = "blue")
+
+qqnorm(lm3$residuals, col="orange", pch=20)
+qqline(lm3$residuals, col = "blue")
+
+qqnorm(lm4$residuals, col="orange", pch=20)
+qqline(lm4$residuals, col = "blue")
+
+anscombe$fitted_lm1 <- lm1$fitted.values
+anscombe$fitted_lm2 <- lm2$fitted.values
+anscombe$fitted_lm3 <- lm3$fitted.values
+anscombe$fitted_lm4 <- lm4$fitted.values
+
+ggplot(data=anscombe, aes(x=fitted_lm1, y=residuals_lm1)) +
+        geom_point(col="orange")
+
+ggplot(data=anscombe, aes(x=fitted_lm2, y=residuals_lm2)) +
+        geom_point(col="orange")
+
+ggplot(data=anscombe, aes(x=fitted_lm3, y=residuals_lm3)) +
+        geom_point(col="orange")
+
+ggplot(data=anscombe, aes(x=fitted_lm4, y=residuals_lm4)) +
+        geom_point(col="orange")
+
+# Условия для построения модели выполняються лишь для x1,x2
+
+
+# diamonds
+str(diamonds)
+
+ggplot(data=diamonds, aes(x=carat, y=price)) + geom_point(col="lightblue")
+cor(diamonds$carat, diamonds$price)
+
+ggplot(data=diamonds, aes(x=carat, y=price, col = clarity)) + 
+        geom_point()
+
+ggplot(data=diamonds, aes(x=carat, y=price)) + 
+        geom_point(col="lightblue") + facet_wrap(~cut)
+
+# Додамо до графіка ще лінію лінійної регресії:
+ggplot(data=diamonds, aes(x=carat, y=price)) + 
+        geom_point(col="lightblue") + 
+        geom_smooth(method="lm", se=FALSE) + 
+        facet_wrap(~cut)
+
+# lin.diamond.ideal <- lm(diamonds$price ~ diamonds$carat, 
+#                         data = diamonds[diamonds$cut == 'Ideal',])
+library(dplyr)
+fair <- diamonds %>% filter(cut == 'Fair')
+ideal <- diamonds %>% filter(cut == 'Ideal')
+
+lin.diamond.ideal <- lm(price ~ carat, data = ideal)
+summary(lin.diamond.ideal)
+8192*1-2300
+
+lin.diamond.fair <- lm(price ~ carat, data = fair)
+summary(lin.diamond.fair)
+5924.5*1-1839.07
+
+
+qnorm(0.975)
+qnorm((1-0.95)/2)
+
+
+1-2*0.95
+        
+
+
+
+
+# Week 5
+library(lubridate) 
+library(dplyr) 
+library(ggplot2)
+
+crime <- read.csv("c:/Users/dsolegya/Downloads/crimes.csv", header = TRUE)
+
+str(crimes)
+summary(crimes)
+
+crime$POSIX <- ymd_hms(as.character(crime$Dates)) 
+crime$Dates <- as.Date(ymd_hms(as.character(crime$Dates)))
+
+moon <- read.csv("c:/Users/dsolegya/Downloads/moon.csv", header = TRUE)
+str(moon)
+head(moon)
+moon$date <- as.Date(moon$date, "%m/%d/%Y")
+
+full_data <- merge(crime, moon, by.x = "Dates", by.y="date")
+full_data <- inner_join(crime, moon, by=c("Dates"="date"))
+
+date_phase <- full_data %>% 
+        group_by(Dates, phase) %>% 
+        count() %>% 
+        arrange(desc(n)) 
+
+glimpse(date_phase)
+
+ggplot(date_phase, aes(Dates, n)) + 
+        geom_line(alpha = 0.5) + 
+        labs(title = "Злочини в Сан-Франциско (2003-2015)", 
+             x = "Дата", y = "Кількість злочинів") + 
+        geom_point(data = date_phase[date_phase$phase == "Full Moon", ], 
+                   color = "red") + 
+        geom_smooth()
+
+x <- mean(date_phase$n[date_phase$phase == "Full Moon"]) 
+x
+mu <- mean(date_phase$n[date_phase$phase != "Full Moon"]) 
+mu
+n <- length(date_phase$n[date_phase$phase == "Full Moon"]) 
+n
+s <- sd(date_phase$n[date_phase$phase == "Full Moon"]) 
+s
+# Та знайдемо p-value: 
+p_value <- 2*pt(0.839, df=76, lower.tail = FALSE) 
+p_value
+
+x_vector <- date_phase$n[date_phase$phase == "Full Moon"] 
+t.test(x_vector, mu = 391.75, alternative = "two.sided", conf.level = 0.95)
+
+impulsive_crimes <- c("OTHER OFFENSES", "LARCENY/THEFT", "VANDALISM", 
+"DRUNKENNESS", "DRUG/NARCOTIC", "DRIVING UNDER THE INFLUENCE", 
+"SEX OFFENSES FORCIBLE", "RUNAWAY", "DISORDERLY CONDUCT", "ARSON", 
+"SUICIDE", "SEX OFFENSES NON FORCIBLE", "SUSPICIOUS OCC", "ASSAULT", 
+"LIQUOR LAWS", "ROBBERY", "BURGLARY", "VEHICLE THEFT")
+
+day_of_week_crimes <- full_data %>% 
+        group_by(DayOfWeek) %>% 
+        count() 
+glimpse(day_of_week_crimes)
+
+ggplot(data=day_of_week_crimes, aes(x=DayOfWeek, y=n)) + 
+        geom_bar(stat="identity", fill="lightblue")
+
+day_of_week_crimes$DayOfWeek <- factor(day_of_week_crimes$DayOfWeek , 
+        levels = c("Monday", "Tuesday", "Wednesday", "Thursday", "Friday", 
+                   "Saturday", "Sunday")) 
+ggplot(data=day_of_week_crimes, aes(x=DayOfWeek, y=n)) + 
+        geom_bar(stat="identity", fill="lightblue")
+
+
+crimes_by_day <- full_data %>% 
+        group_by(Dates, DayOfWeek) %>% 
+        count()
+
+sample_vector <- crimes_by_day$n[crimes_by_day$DayOfWeek == "Friday"]
+
+str(sample_vector)
+
+x <-mean(crimes_by_day$n[crimes_by_day$DayOfWeek=="Friday"]) 
+x
+s <-sd(crimes_by_day$n[crimes_by_day$DayOfWeek == "Friday"]) 
+s
+# t stat
+mean(full_data) 
+# t_statistic <- (mean(date_phase$n[date_phase$phase != "Full Moon"])-mean(sample_vector)) / 
+        # (sd(date_phase$n[date_phase$phase != "Full Moon"]) /sqrt(46))
+t_statistic <- (mean(date_phase$n[date_phase$phase != "Full Moon"])-mean(sample_vector)) / 
+        (s /sqrt(46))
+t_statistic <- (x - 391.75) / 
+        (s /sqrt(46))
+t_statistic
+length(sample_vector)
+
+p_val <- pt(t_statistic, df = 45, lower.tail = FALSE)
+p_val
+t.test(sample_vector, mu = 391.75, sd = s, conf.level = 0.99)
+mean(sample_vector)
+
+
+
+
+
+
+
+
+
+
