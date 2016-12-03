@@ -1,0 +1,37 @@
+p <- function(k, n, alpha, ...) {
+        # s <- 0
+        s1 <- 0 
+        lambda <- n*alpha
+        for (i in 0 : k) {
+                # s <- s + factorial(n)/
+                #        (factorial(i)*(factorial(n)-factorial(i))) *
+                #        alpha^i * (1-alpha)^(n-i)
+                s1 <- s1 + ((lambda^i)*exp(-lambda))/factorial(i)
+        }
+        # return(list(1-s, 1-s1))
+		return(list(1-s1))
+}
+# Ф-я p возвращает вероятность возникновения больше чем k ошибок первого рода
+# при множественной проверке n гипотиз
+# n - количество проверяемых гипотез
+# k+1 - число ограничивающие снизу кол-во возможных ошибок первого рода
+p(k = 0, n = 10, alpha = 0.05)
+
+# get("lambda", environment(p))
+# ls(environment(p))
+# 
+# make.power <- function(n) {
+#         pow <- function(x) {
+#                 x^n
+#         }
+#         pow
+# }
+# 
+# cube <- make.power(3)
+# cube(7)
+# 
+# ls(environment(p))
+# get("k", environment(p))
+# 
+# search()
+# searchpaths()
