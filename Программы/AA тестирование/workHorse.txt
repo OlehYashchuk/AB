@@ -15,9 +15,6 @@ workHorse <- function(K = k, N = n, ...) {
         falsePositive <- length(which(unlist(rbind(pVal)) < alpha))
         fPRate <- falsePositive / K
         
-        plot(sort(unlist(rbind(pVal))), type = 'p', ylim = c(0,1))
-        abline(h = alpha, col = 'red')
-        abline(h = alpha/n, col = 'red')
         toc()
         
         fPRateBon <- BonferroniCorrection(pVal, alpha)
