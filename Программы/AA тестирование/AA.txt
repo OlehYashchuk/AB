@@ -38,8 +38,11 @@ pwr <- power.prop.test(p1 = pksi, p2 = ifelse(peta-pksi!=0, peta, pksi+0.02),
 n <- pwr$n
 
 a <- list()
+# Запуск всей программы
 a <- workHorse(k, n, pksi, peta, alpha)
+# Частота ошибки первого рода без поправки на множественность
 a$FPR
+# Частота ошибки первого рода с поправкой Бонферрони
 a$FPRB
 
 pVals <- as.data.frame(sort(t(as.data.frame(a$pVal))))
