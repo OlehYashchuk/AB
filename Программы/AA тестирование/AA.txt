@@ -1,0 +1,57 @@
+# Множественная проверка гипотез при А/А тестирование
+
+rm(list = ls())
+
+getwd()
+setwd("d:/Oleh/Research/AB")
+# setwd("d:/D/Coursera/AB-testing/AB/Программы")
+
+source("usersFlow.R")
+source("chiTest.R")
+source("workHorse.R")
+source("BonferroniCorrection.R")
+
+options("max.print" = 50)
+getOption
+
+library(pwr)
+library(tictoc)
+library(ggplot2)
+
+########## Параметры моделирования
+# количество разбиений потока пользователей
+k <- 1000
+# уровень значимости
+alpha <- 0.05
+beta <- 0.2
+# квантиль N(0,1) для уровня значимости alpha
+quant <- qnorm(1 - alpha / 2)
+# вероятности клика по кнопке
+pksi <- 0.1 # pcont
+peta <- 0.1 # pexp
+# необходимый объём выборки в каждой группе
+pwr <- power.prop.test(p1 = pksi, p2 = ifelse(peta-pksi!=0, peta, pksi+0.02),
+                       sig.level = alpha,
+                       power = 1 - beta,
+                       alternative = c("two.sided"),
+                       strict = FALSE)
+n <- pwr$n
+
+a <- list()
+a <- workHorse(k, n, pksi, peta, alpha)
+a$FPR
+a$FPRB
+
+g <- ggplot(pVals, aes(c(1:dim(pVals)[1]), p)) + 
+        geom_point(aes(col = p > alpha), size = 4, alpha = .7) + 
+        geom_line(y = alpha, col = "red") + 
+        geom_line(y = alpha/k, col = "darkred") +
+        labs(title = paste("А/А тестирование,", k, 
+                           "альтернативных версий страницы сайта"), 
+             x = "Номер версии страницы сайта", y = "p-value") + 
+        coord_cartesian(ylim = c(0, 0.1)) + theme_bw()
+g
+
+# png(file = 'plot.png', width = 1024, height = 580)
+# g
+# dev.off()
