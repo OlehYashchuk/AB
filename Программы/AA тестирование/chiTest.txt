@@ -1,12 +1,12 @@
 ########## Критерий Хи2 для пропорций
-chiTest <- function(ksi, eta) {
+chiTest <- function(A = ksi, B = eta) {
         # р-pool
-        pPool <- (sum(ksi) + sum(eta)) / (length(ksi) + length(eta))
+        pPool <- (sum(A) + sum(B)) / (length(A) + length(B))
         # Числитель статистики
-        chiSNumerator <- sum(ksi) / length(ksi) - sum(eta) / length(eta)
+        chiSNumerator <- sum(A) / length(A) - sum(B) / length(B)
         # Знаменатель статистики
         chiSDenominator <- sqrt(pPool * (1-pPool) * 
-                                        (1/length(ksi)+1/length(eta))+0.1^100)
+                                        (1/length(A)+1/length(B))+0.1^100)
         # Статистика критерия
         se <- chiSNumerator / chiSDenominator
         # p-value для статистики Хи2 при двусторонней альтернативе

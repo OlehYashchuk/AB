@@ -1,29 +1,72 @@
-workHorse <- function(K = k, N = n, ...) {
+workHorse <- function(K = k, N = round(n), Alpha = alpha, ...) {
+        
         # Время работы функии
         tic()
-        tests <- list()
-        modelFlow <- usersFlow(K, N, pA = pksi, pB = peta)
-        # modelFlow <- usersFlow()
+        pb <- txtProgressBar(min = 1, max = N, style = 3)
         
+        modelFlow <- usersFlow(K, N, pA = pksi)
+        
+        ## Сравниваем все альтернативные страницы с контрольной
+        # Получаем значение p-value и верхнюю границу доверительного 
+        # интервала для каждой пары альтернативной и контрольной страниц
+        tests <- list()
+        for (i in 2 : K) {
+                tests[i-1] <- list(chiTest(A = unlist(modelFlow$flow[[1]])[1:N], 
+                                           B = unlist(modelFlow$flow[[i]])[1:N]))
+                
+                setTxtProgressBar(pb, i)
+        }
+        
+        ## Сравниваем контрольную страницу с альтернативными
+        # Массив массивов
+        testsMultiple <- list()
         for (i in 1 : K) {
-                tests[i] <- list(chiTest(ksi = unlist(modelFlow$flow[[1]]), 
-                                         eta = unlist(modelFlow$flow[[i]])))
-                # setTxtProgressBar(pb, i)
+                testsMultiple[i] <- as.list(testsMultiple[i])
+                testsMultiple[[i]] <- as.list(testsMultiple[[i]])
+        }
+        
+        M <- 1
+        for (i in 1 : K) {
+                for (j in M : K) {
+                        testsMultiple[[i]][j] <- list(
+                                chiTest(A = unlist(modelFlow$flow[[i]])[1:N],
+                                        B = unlist(modelFlow$flow[[j]])[1:N]))
+                        
+                }
+                M <- M + 1
+        }
+        
+        pValMat <- matrix(0, K, K)
+        for (i in 1 : K) {
+                for (j in 1 : K) {
+        pValMat[j, i] <- ifelse(is.null((testsMultiple[[i]][[j]]$pVal)) || i==j,
+                                          0, testsMultiple[[i]][[j]]$pVal)
+                }
         }
         
         pVal <- lapply(tests, function(x) {unlist(x[1])})
-        falsePositive <- length(which(unlist(rbind(pVal)) < alpha))
+        
+        pValMultiple <- lapply(testsMultiple, function(x) {unlist(x[1])})
+        
+        falsePositive <- length(which(unlist(rbind(pVal)) < Alpha))
         fPRate <- falsePositive / K
         
+        fPRateBon <- BonferroniCorrection(pVal, Alpha)
+        
+        close(pb)
         toc()
         
-        fPRateBon <- BonferroniCorrection(pVal, alpha)
-        
-        # write.table(unlist(pVal), file = paste("pVal_", k, ".txt"), 
+        # write.table(unlist(pVal), file = paste("pVal_", K, ".txt"), 
         #             quote = FALSE, row.names = FALSE, col.names = FALSE)
         
-        return(list("pVal" = pVal, "FPR" = fPRate, "FPRB" = fPRateBon))
+        return(list("pVal" = pVal, "pValMultiple" = pValMat, 
+                    "testsMultiple" = testsMultiple, 
+                    "FPR" = fPRate, "FPRB" = fPRateBon))
 }
 
 # ls(environment(workHorse))
-# get("tests", environment(workHorse))
+# get("n", environment(workHorse))
+
+# modelFlow <- usersFlow(k, n, pA = pksi, pB = peta)
+# length(unlist(modelFlow$flow[[1]]))
+

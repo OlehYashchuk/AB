@@ -1,0 +1,34 @@
+########## Моделирование потока пользователей
+usersFlow <- function(K = k, N = n, pA = pksi, ...) {
+        
+        # Индикатор выполнения функции
+        pb <- txtProgressBar(min = 0, max = N, style = 3)
+        
+        # Массив массивов
+        flow <- list()
+        for (i in 1 : K) {
+                flow[i] <- as.list(flow[i])
+                flow[[i]] <- as.list(flow[[i]])
+        }
+        
+        # Моделируем посетителей до достижения необходимого колличества N
+        # в каждой группе
+        while (min(unlist(lapply(flow, length))) < N) {
+                
+                # Разделение потока на А и В
+                # Если whos = 1, пользователь попадает в группу ksi
+                # Если whos = 2, пользователь попадает в группу eta
+                who <- sample(c(1 : K), 1, replace = T, prob = rep(1/K, K))
+                
+                # Отправляем пользователя в группу номер who 
+                # и генерируем его поведение
+                flow[[who]][[length(flow[[who]])+1]] <- sample(c(0, 1), 1, 
+                                                               replace = T, prob = c(1 - pA, pA))
+                
+                setTxtProgressBar(pb, min(unlist(lapply(flow, length))))
+        }
+        
+        close(pb)
+        
+        return(list("flow" = flow))
+}

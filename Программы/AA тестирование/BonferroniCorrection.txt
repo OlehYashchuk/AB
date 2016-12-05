@@ -1,4 +1,6 @@
-BonferroniCorrection <- function(pVal, alpha) {
-        FP <- length(which(pVal <= alpha / length(pVal)))
-        FPR <- FP / length(pVal)
+BonferroniCorrection <- function(Pval = pVal, Alpha = alpha) {
+
+        FP <- length(which(Pval <= Alpha / length(Pval)))
+        FPR <- FP / length(Pval)
+		
 }

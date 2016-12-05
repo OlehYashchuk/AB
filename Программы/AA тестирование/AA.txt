@@ -3,13 +3,14 @@
 rm(list = ls())
 
 getwd()
-setwd("d:/Oleh/Research/AB")
+setwd("d:/D/AB/Программы/AA тестирование")
 # setwd("d:/D/Coursera/AB-testing/AB/Программы")
 
 source("usersFlow.R")
 source("chiTest.R")
 source("workHorse.R")
 source("BonferroniCorrection.R")
+source("draw.R")
 
 options("max.print" = 50)
 getOption
@@ -20,7 +21,7 @@ library(ggplot2)
 
 ########## Параметры моделирования
 # количество разбиений потока пользователей
-k <- 20
+k <- 5
 # уровень значимости
 alpha <- 0.05
 beta <- 0.2
@@ -40,24 +41,12 @@ n <- pwr$n
 a <- list()
 # Запуск всей программы
 a <- workHorse(k, n, pksi, peta, alpha)
+# sapply(a, length)
 # Частота ошибки первого рода без поправки на множественность
-a$FPR
+# a$FPR
 # Частота ошибки первого рода с поправкой Бонферрони
-a$FPRB
+# a$FPRB
+# График p-values
+draw(a)
 
-pVals <- as.data.frame(sort(t(as.data.frame(a$pVal))))
-names(pVals) <- "pVal"
-
-g <- ggplot(pVals, aes(c(1:dim(pVals)[1]), pVal)) + 
-        geom_point(aes(col = pVal > alpha), size = 2.5, alpha = .7) + 
-        geom_line(y = alpha, col = "red") + 
-        geom_line(y = alpha/k, col = "darkred") +
-        labs(title = paste("А/А тестирование,", k, 
-                           "альтернативных версий страницы сайта"), 
-             x = "Номер версии страницы сайта", y = "p-value") + 
-        coord_cartesian(ylim = c(0, 1)) + theme_bw()
-g
-
-# png(file = 'plot.png', width = 1024, height = 580)
-# g
-# dev.off()
+# unlist(a$testsMultiple, use.names = FALSE)
