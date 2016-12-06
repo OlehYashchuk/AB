@@ -44,24 +44,25 @@ workHorse <- function(K = k, N = round(n), Alpha = alpha, ...) {
                 }
         }
         
-        pVal <- lapply(tests, function(x) {unlist(x[1])})
+        # pVal <- lapply(tests, function(x) {unlist(x[1])})
         
         pValMultiple <- lapply(testsMultiple, function(x) {unlist(x[1])})
         
-        falsePositive <- length(which(unlist(rbind(pVal)) < Alpha))
-        fPRate <- falsePositive / K
+        # falsePositive <- length(which(unlist(rbind(pVal)) < Alpha))
+        # fPRate <- falsePositive / K
         
-        fPRateBon <- BonferroniCorrection(pVal, Alpha)
+        # fPRateBon <- BonferroniCorrection(pVal, Alpha)
         
         close(pb)
         toc()
         
+        p.adj.Matrix <- correction(array(pValMat[pValMat != 0]), Alpha)
         # write.table(unlist(pVal), file = paste("pVal_", K, ".txt"), 
         #             quote = FALSE, row.names = FALSE, col.names = FALSE)
-        
-        return(list("pVal" = pVal, "pValMultiple" = pValMat, 
-                    "testsMultiple" = testsMultiple, 
-                    "FPR" = fPRate, "FPRB" = fPRateBon))
+
+        return(list("pValMultiple" = pValMat, "testsMultiple" = testsMultiple,
+                    "p.adj.Matrix" = p.adj.Matrix)) 
+        #"pVal" = pVal, "FPR" = fPRate, "FPRB" = fPRateBon 
 }
 
 # ls(environment(workHorse))

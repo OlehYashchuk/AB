@@ -9,11 +9,11 @@ setwd("d:/D/AB/Программы/AA тестирование")
 source("usersFlow.R")
 source("chiTest.R")
 source("workHorse.R")
-source("BonferroniCorrection.R")
+source("correction.R")
 source("draw.R")
 
-options("max.print" = 50)
-getOption
+# options("max.print" = 50)
+# getOption
 
 library(pwr)
 library(tictoc)
@@ -47,6 +47,6 @@ a <- workHorse(k, n, pksi, peta, alpha)
 # Частота ошибки первого рода с поправкой Бонферрони
 # a$FPRB
 # График p-values
-draw(a)
+# draw(a)
 
-# unlist(a$testsMultiple, use.names = FALSE)
+a$p.adj.Matrix
