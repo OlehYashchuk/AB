@@ -57,8 +57,8 @@ workHorse <- function(K = k, N = round(n), Alpha = alpha, ...) {
         toc()
         
         p.adj.Matrix <- correction(array(pValMat[pValMat != 0]), Alpha)
-        # write.table(unlist(pVal), file = paste("pVal_", K, ".txt"), 
-        #             quote = FALSE, row.names = FALSE, col.names = FALSE)
+        # write.table(p.adj.Matrix, file = paste("pVal_", K, ".txt"), 
+        #             quote = FALSE, row.names = FALSE, sep = ';')
 
         return(list("pValMultiple" = pValMat, "testsMultiple" = testsMultiple,
                     "p.adj.Matrix" = p.adj.Matrix)) 

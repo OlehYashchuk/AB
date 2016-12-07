@@ -6,6 +6,11 @@ getwd()
 setwd("d:/D/AB/Программы/AA тестирование")
 # setwd("d:/D/Coursera/AB-testing/AB/Программы")
 
+# setwd("./Результаты")
+# a <- read.table("pValMult_1000.txt", header = TRUE, sep = ";")
+# sapply(a, function(x) summary(x[-499501]))
+# sapply(a, function(x) length(which(x < alpha)) / 499501)
+
 source("usersFlow.R")
 source("chiTest.R")
 source("workHorse.R")
@@ -18,6 +23,9 @@ source("draw.R")
 library(pwr)
 library(tictoc)
 library(ggplot2)
+# update.packages(c("dplyr", "tidyr"))
+library(dplyr)
+library(tidyr)
 
 ########## Параметры моделирования
 # количество разбиений потока пользователей
@@ -42,11 +50,23 @@ a <- list()
 # Запуск всей программы
 a <- workHorse(k, n, pksi, peta, alpha)
 # sapply(a, length)
-# Частота ошибки первого рода без поправки на множественность
-# a$FPR
-# Частота ошибки первого рода с поправкой Бонферрони
-# a$FPRB
-# График p-values
-# draw(a)
 
-a$p.adj.Matrix
+# График p-values 
+draw(a)
+
+nH0 <- factorial(k)/(2*factorial(k-2))
+pVal <- gather(tbl_df(a$p.adj.Matrix[,c(-3,-6)]), "Method", "pVal", 1:5) %>% 
+        filter(pVal <= 1) %>%
+        mutate(Hypothesis1 = rep(1:nH0, 5)) %>%
+        arrange(Method, pVal) %>% 
+        mutate(Hypothesis = rep(1:nH0, 5))
+
+g <- ggplot(pVal, aes(Hypothesis, pVal)) + 
+        geom_point(aes(col = pVal < alpha), size = 4, alpha = .7) +  
+        geom_line(y = alpha, col = "red") +
+        facet_wrap(~Method, labeller = label_both) +
+        coord_cartesian(ylim = c(0, 1)) + theme_bw()
+g
+# png(file = './Результаты/plot_k5_f3.png', width = 1024, height = 580)
+# g
+# dev.off()

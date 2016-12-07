@@ -1,5 +1,5 @@
 draw <- function(...) {
-        pVals <- as.data.frame(sort(t(as.data.frame(a$pVal))))
+        pVals <- as.data.frame(sort(t(as.data.frame(a$pVal[a$pVal != 0]))))
         names(pVals) <- "pVal"
         
         g <- ggplot(pVals, aes(c(1:dim(pVals)[1]), pVal)) + 
