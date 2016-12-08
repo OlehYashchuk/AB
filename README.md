@@ -6,5 +6,5 @@ https://www.rstudio.com/resources/cheatsheets/
 ## Statistics
 https://www.cs.cornell.edu/~asampson/blog/statsmistakes.html
 
-## About AB Testing
+## About Testing
 https://www.coursera.org/learn/stats-for-data-analysis/home/week/2
