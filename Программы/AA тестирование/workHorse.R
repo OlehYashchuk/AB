@@ -2,7 +2,6 @@ workHorse <- function(K = k, N = round(n), Alpha = alpha, ...) {
         
         # Время работы функии
         tic()
-        pb <- txtProgressBar(min = 1, max = N, style = 3)
         
         modelFlow <- usersFlow(K, N, pA = pksi)
         
@@ -10,12 +9,14 @@ workHorse <- function(K = k, N = round(n), Alpha = alpha, ...) {
         # Получаем значение p-value и верхнюю границу доверительного 
         # интервала для каждой пары альтернативной и контрольной страниц
         tests <- list()
+        pb <- txtProgressBar(min = 1, max = N, style = 3)
         for (i in 2 : K) {
                 tests[i-1] <- list(chiTest(A = unlist(modelFlow$flow[[1]])[1:N], 
                                            B = unlist(modelFlow$flow[[i]])[1:N]))
                 
                 setTxtProgressBar(pb, i)
         }
+        close(pb)
         
         ## Сравниваем контрольную страницу с альтернативными
         # Массив массивов
@@ -44,14 +45,7 @@ workHorse <- function(K = k, N = round(n), Alpha = alpha, ...) {
                 }
         }
         
-        # pVal <- lapply(tests, function(x) {unlist(x[1])})
-        
         pValMultiple <- lapply(testsMultiple, function(x) {unlist(x[1])})
-        
-        # falsePositive <- length(which(unlist(rbind(pVal)) < Alpha))
-        # fPRate <- falsePositive / K
-        
-        # fPRateBon <- BonferroniCorrection(pVal, Alpha)
         
         close(pb)
         toc()
@@ -62,12 +56,7 @@ workHorse <- function(K = k, N = round(n), Alpha = alpha, ...) {
 
         return(list("pValMultiple" = pValMat, "testsMultiple" = testsMultiple,
                     "p.adj.Matrix" = p.adj.Matrix)) 
-        #"pVal" = pVal, "FPR" = fPRate, "FPRB" = fPRateBon 
 }
 
 # ls(environment(workHorse))
 # get("n", environment(workHorse))
-
-# modelFlow <- usersFlow(k, n, pA = pksi, pB = peta)
-# length(unlist(modelFlow$flow[[1]]))
-

@@ -1,0 +1,102 @@
+\documentclass[a4paper,12pt]{article}
+
+\input{preamble.tex}
+\input{preamble_document.tex}
+\input{preamble_tables_and_images.tex}
+\input{preamble_math.tex}
+
+\author{O.O.Yashchuk} %, I.S.Bondarenko
+\title{Multiple hypothesis testing in the task of AB testing}
+\date{\today}
+
+%\usepackage{lipsum} 
+
+%\newcommand*{\rom}[1]{\expandafter\@slowromancap\romannumeral #1@}
+\newcommand{\rom}[1]{\uppercase\expandafter{\romannumeral #1\relax}}
+\begin{document} % конец преамбулы, начало документа
+
+\maketitle
+
+\begin{abstract}
+%	\lipsum[1]
+Sequential testing with likelihood ratios which requires fewer observations than classical hypothesis testing is proposed. It allows to speed up A/B testing. Decisions about effectiveness of variations of web pages are made as soon as possible. Software implementation of A/B testing has been developed in R.
+\end{abstract}
+
+\tableofcontents
+
+%\section{План исследовательской работы}
+%\subsection{Рассмо}
+%\subsection{AA тестировани}
+%\subsection{AA тестировани}
+%\subsection{AA тестировани}
+
+\section{Введение}
+\begin{itemize}
+	\item Описать простую задачу АВ тестирования, \textbf{и её приминение на практике}.
+	\item Способ решения простой задачи АВ тестирования.
+	\item Цель исследования представленного в работе.
+\end{itemize}
+
+\section{Постановка задачи}
+\subsection{Структура раздела}
+\begin{itemize}
+	\item Рассмотреть проблематику множественной проверки гиппотез. 
+			\begin{itemize}
+				\item Таблица ($V, R, m, m_0 ...$)
+				\item Описание $FWER=P(V>1)$ и необходимости контроля $FWER\leq\alpha$
+				\item $FDR$ загвоздка в нём???
+				\item Небольшой пример?
+			\end{itemize} 
+	\item Для каких случаев множественной проверки гипотез растет вероятность ошибки \rom{1} рода? (Когда гипотезы проверяются на одних и тех же данных?)
+	\item Показать, что при множественной проверке гиппотиз растет вероятность груповой ошибки \rom{1} рода $FWER$.
+			\begin{itemize}
+				\item Пример при помощи теореммы Пуассона \href{https://www.cs.cornell.edu/~asampson/blog/statsmistakes.html?utm_campaign=Data%2BElixir&utm_medium=email&utm_source=Data_Elixir_108}{идея отсюда}
+				\item На графике показать рост вероятности ошибки \href{http://conversionxl.com/how-many-ab-test-variations/?utm_source=sumome&utm_medium=linkedin&utm_campaign=share}{вот как здесь}
+				\item \textbf{Проверить на АА тестирование верность этого утверждения!}
+			\end{itemize} 		
+\end{itemize}
+
+\subsection{title}
+Вероятность допустить хотя-бы одну ошибку \rom{1} рода. Воспользуемся предельной теоремой Пуассона.
+\begin{multline}
+	P(V>k)= 
+	1-\sum_{i=1}^{k}C_{n}^{k}\alpha^i(1-\alpha)^{n-i} = 
+	1-\exp{-\lambda}\sum_{i=0}^{k}\frac{\lambda^i}{i!} 
+	\text{, where } \lambda=n\alpha
+\end{multline}
+
+\textbf{Example.} Вероятность допустить хотя бы одну ошибку \rom{1} рода при 10 проверках гипотез. При заданом ограничении вероятности ошибки \rom{1} рода равной 5\%.
+
+\begin{equation*}
+P(V>0)=1-\exp^{-\lambda}\sum_{i=0}^{k}\frac{\lambda^i}{i!} =
+1-\exp{-\frac{1}{2}} = 0.39 \equiv 39\%
+\end{equation*}
+
+\begin{equation*}
+	\begin{aligned}	
+		P(V>1)=&1-\exp{-\lambda}\sum_{i=0}^{k}\frac{\lambda^i}{i!} =
+		1-\exp{-0.5}\sum_{i=0}^{1}\frac{0.5^i}{i!} =\\
+		&1-\exp{-0.5}\left(\frac{0.5^0}{0!}+\frac{0.5^1}{1!}\right) = 
+		1-\exp{-0.5}\left(1+0.5\right) = \\
+		&1-1.5\exp{-0.5} = 0.09 \equiv 9\%
+	\end{aligned}
+\end{equation*}
+
+\section{Класична перевірка статистичних гіпотез}
+\subsection{Звичайне A/B-тестування}
+\subsection{Множинне A/B-тестування}
+
+\section{Послідовна перевірка статистичних гіпотез}
+\subsection{Звичайне A/B-тестування}
+\subsection{Множинне A/B-тестування}
+
+\section{Порівняння класичної та послідовної перевірки статистичних гіпотез при множинному A/B-тестуванні}
+
+
+%ref{https://help.optimizely.com/Build_Campaigns_and_Experiments/Experiment_Types%3A_AB%2C_Multivariate%2C_and_Multi-page#multivariate_test
+
+\nocite{*}
+\printbibliography[heading=subbibliography,filter=papers,title={Литература}]%type=book,
+\end{document} % конец документа
+
+

@@ -1,0 +1,52 @@
+rm(list = ls())
+
+getwd()
+setwd("d:/D/AB/Программы")
+
+library(ggplot2)
+library(dplyr)
+
+# входные параметры тестирования
+alpha <- 0.05
+beta <- 0.2
+p <- 0.1
+d <- 0.05
+nMax <- 10000
+
+# n для мощности критерия 0.8
+pwr08 <- power.prop.test(p1 = p, p2 = p+d,
+                         sig.level = alpha,
+                         power = 1 - beta,
+                         alternative = c("two.sided"),
+                         strict = FALSE)
+
+# расчет мощности при разных n и фиксированых p, d, alpha
+pwr <- list()
+k <- 0
+for (i in seq(0, nMax, by = 1)) {
+        k<-k+1
+        pwr$coord[k]<-i
+        pwr$power[k]<-power.prop.test(n = i,
+                                      p1 = p, p2 = p+d,
+                                      sig.level = alpha,
+                                      # power = 1 - beta,
+                                      alternative = c("two.sided"),
+                                      strict = FALSE)$power
+}
+pwr <- tbl_df(pwr)
+
+# график мощности от n
+ggplot(data = pwr, aes(coord, power)) + geom_line() + 
+        geom_vline(aes(xintercept=pwr08$n), col='red') +
+        geom_hline(aes(yintercept=pwr08$power), col='red') +
+        scale_y_continuous(limits = c(0, 1)) +
+        scale_x_discrete(limits=seq(0, nMax, by = nMax/10)) + 
+        labs(title = paste("Base line conversion is ", p, 
+                           ", the desired improvement is ", d, sep=""), 
+             x = "Number of visitors", y = "Power") + 
+        annotate(geom = "text", x = nMax*0.95, y = 0.1,
+                 label = paste("n =", round(pwr08$n)), col = 'red') +
+        theme_bw()
+
+ggsave(paste("Plots/power_p",p,"_d",d,".png", sep=""), last_plot(), scale = 1)
+

@@ -1,0 +1,73 @@
+%%% Работа с русским языком
+\usepackage{cmap}					% поиск в PDF
+\usepackage{mathtext} 				% русские буквы в формулах
+\usepackage[T2A]{fontenc}			% кодировка
+\usepackage[utf8]{inputenc}			% кодировка исходного текста
+\usepackage[english, main=russian]{babel}	% локализация и переносы
+%\usepackage[american,russian]{babel}
+
+\usepackage{indentfirst}
+\usepackage{lastpage} % Узнать, сколько всего страниц в документе.
+\usepackage{multicol} % Несколько колонок
+\usepackage{soul} % Модификаторы начертания
+
+\frenchspacing
+
+\usepackage[babel]{csquotes} % Еще инструменты для ссылок
+%\usepackage[backend=biber,sorting=ynt,maxcitenames=2,style=verbose]{biblatex}
+%\usepackage[citestyle=apa,sortcites=true,bibencoding=utf8,sorting=nyt,backend=biber]{biblatex}%
+%\usepackage[citestyle=apa,backend=biber]{biblatex}
+\usepackage[style=apa,citestyle=apa,backend=biber]{biblatex}
+%style=verbose,
+\DeclareLanguageMapping{american}{american-apa}
+\DeclareLanguageMapping{russian}{american-apa}
+\addbibresource{sources.bib}
+
+\defbibfilter{papers}{
+  type=article or
+  type=book
+}
+
+%\renewcommand{\refname}{Список литературы}  % По умолчанию "Список литературы" (article)
+%\renewcommand{\bibname}{Литература}  % По умолчанию "Литература" (book и report)
+
+
+
+% --------------------------------------------------------------------------
+% Пакет для заполнение точками оглавления
+\usepackage{tocloft} 
+%\renewcommand{\cftdot}{.} %empty {} for no dots. you can have any symbol inside. For example put {\ensuremath{\ast}} and see what happens.
+%\renewcommand{\cftpartleader}{\cftdotfill{\cftdotsep}} % for parts
+%\renewcommand{\cftchapleader}{\cftdotfill{\cftdotsep}} % for chapters
+\renewcommand{\cftsecleader}{\cftdotfill{\cftdotsep}} % for sections, if you really want! (It is default in report and book class (So you may not need it).
+\renewcommand{\cftsubsecleader}{\cftdotfill{\cftdotsep}}
+% --------------------------------------------------------------------------
+%\renewcommand{\thesection}{}
+\renewcommand{\thesubsection}{}
+\setcounter{tocdepth}{3} %level -1: part, 0: chapter, 1: section, 2: subsection etc.
+
+
+
+
+
+
+
+\usepackage{hyperref}
+\usepackage[usenames,dvipsnames,svgnames,table,rgb]{xcolor}
+\hypersetup{				% Гиперссылки
+	unicode=true,           % русские буквы в раздела PDF
+	pdftitle={Задание 4},   % Заголовок
+	pdfauthor={Олег Ящук},      % Автор
+	pdfsubject={Тема},      % Тема
+	pdfcreator={Создатель}, % Создатель
+	pdfproducer={Производитель}, % Производитель
+	pdfkeywords={keyword1} {key2} {key3}, % Ключевые слова
+	colorlinks=true,       	% false: ссылки в рамках; true: цветные ссылки
+	linkcolor=black,        % внутренние ссылки
+	citecolor=black,        % на библиографию
+	filecolor=magenta,      % на файлы
+	urlcolor=blue           % на URL
+}
+
+%%% Программирование
+\usepackage{etoolbox} % логические операторы

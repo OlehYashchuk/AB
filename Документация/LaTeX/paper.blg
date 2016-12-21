@@ -1,0 +1,9 @@
+[0] Config.pm:354> INFO - This is Biber 2.6
+[0] Config.pm:357> INFO - Logfile is 'paper.blg'
+[146] biber-MSWIN32:302> INFO - === 
+[345] Biber.pm:359> INFO - Reading 'paper.bcf'
+[473] Biber.pm:820> INFO - Using all citekeys in bib section 0
+[558] Biber.pm:3658> INFO - Processing section 0
+[684] Biber.pm:3828> INFO - Looking for bibtex format file 'sources.bib' for section 0
+[1059] Utils.pm:180> ERROR - Cannot find 'sources.bib'!
+[1060] Biber.pm:113> INFO - ERRORS: 1
