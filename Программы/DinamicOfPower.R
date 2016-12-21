@@ -9,9 +9,10 @@ library(dplyr)
 # входные параметры тестирования
 alpha <- 0.05
 beta <- 0.2
-p <- 0.1
-d <- 0.05
 nMax <- 10000
+p <- 0.2
+##### изменять параметр d (ожидаемая разница конверсий)
+d <- 0.05
 
 # n для мощности критерия 0.8
 pwr08 <- power.prop.test(p1 = p, p2 = p+d,
@@ -44,9 +45,8 @@ ggplot(data = pwr, aes(coord, power)) + geom_line() +
         labs(title = paste("Base line conversion is ", p, 
                            ", the desired improvement is ", d, sep=""), 
              x = "Number of visitors", y = "Power") + 
-        annotate(geom = "text", x = nMax*0.95, y = 0.1,
+        annotate(geom = "text", x = nMax*0.9, y = 0.1,
                  label = paste("n =", round(pwr08$n)), col = 'red') +
         theme_bw()
 
-ggsave(paste("Plots/power_p",p,"_d",d,".png", sep=""), last_plot(), scale = 1)
-
+ggsave(paste("Графики/power_p",p,"_d",d,".png", sep=""), last_plot(), scale = 1)
