@@ -1,16 +1,16 @@
 # choose
-p <- function(k, n, alpha, ...) {
+p <- function(K, N, Alpha, ...) {
         # s <- 0
         s1 <- 0 
-        lambda <- n*alpha
-        for (i in 0 : k) {
+        lambda <- N*Alpha
+        for (i in 0 : K) {
                 # s <- s + factorial(n)/
                 #        (factorial(i)*(factorial(n)-factorial(i))) *
                 #        alpha^i * (1-alpha)^(n-i)
                 s1 <- s1 + ((lambda^i)*exp(-lambda))/factorial(i)
         }
         # return(list(1-s, 1-s1))
-		return(list(1-s1))
+        return(list(1-s1))
 }
 
 # Ф-я p возвращает вероятность возникновения больше чем k ошибок первого рода
@@ -18,4 +18,24 @@ p <- function(k, n, alpha, ...) {
 # n - количество проверяемых гипотез
 # k+1 - число ограничивающие снизу кол-во возможных ошибок первого рода
 # Для использования поправки Бонферрони нужно указать alpha = 0.05/n
-p(k = 0, n = 10, alpha = 0.05)
+p(K = 0, N = 10, Alpha = 0.05)
+
+### графическое представление
+# кол-во проверяемых гипотез
+n <- 100
+alpha <- 0.05
+
+prob <- list()
+for (i in 1:n) {
+        prob$x[i] <- list(i)
+        prob$y[i] <- p(K = 0, N = i, Alpha = alpha)
+}
+prob <- sapply(prob, unlist)
+prob <- tbl_df(prob)
+
+qplot(x, y, data=prob, geom="line", 
+      xlab = 'Кол-во проверяемых гипотез',
+      ylab = 'Вероятность',
+      main = 'Вероятность хотя бы одной \nошибки первого рода')
+
+ggsave(paste("Графики/FWER_P(V_geq_1).png", sep=""), last_plot(), scale = 1)

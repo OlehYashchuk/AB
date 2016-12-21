@@ -12,7 +12,7 @@ beta <- 0.2
 nMax <- 10000
 p <- 0.2
 ##### èçìåíÿòü ïàğàìåòğ d (îæèäàåìàÿ ğàçíèöà êîíâåğñèé)
-d <- 0.05
+d <- 0.02
 
 # n äëÿ ìîùíîñòè êğèòåğèÿ 0.8
 pwr08 <- power.prop.test(p1 = p, p2 = p+d,
@@ -38,8 +38,8 @@ pwr <- tbl_df(pwr)
 
 # ãğàôèê ìîùíîñòè îò n
 ggplot(data = pwr, aes(coord, power)) + geom_line() + 
-        geom_vline(aes(xintercept=pwr08$n), col='red') +
-        geom_hline(aes(yintercept=pwr08$power), col='red') +
+        geom_vline(aes(xintercept=pwr08$n), col='red', lty=2) +
+        geom_hline(aes(yintercept=pwr08$power), col='red', lty=2) +
         scale_y_continuous(limits = c(0, 1)) +
         scale_x_discrete(limits=seq(0, nMax, by = nMax/10)) + 
         labs(title = paste("Base line conversion is ", p, 
